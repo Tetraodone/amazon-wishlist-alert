@@ -1,5 +1,6 @@
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
+const axios = require("axios");
 
 var oldList;
 
@@ -67,6 +68,7 @@ async function scrapeList(id) {
         fetching = true;
         //const {data} = await axios.get(`${baseUrl}${id}&ajax=false`, {crossdomain: true , headers: {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0'}});
         const data = await browse(`${baseUrl}${id}&ajax=false`);
+        
         console.log(data);
         const $ = cheerio.load(data);
         var items = [];
@@ -171,7 +173,14 @@ async function setup(listId){
     }
 }
 
-setup("2B4D1FWGWPICD");
+async function test(){
+    const {data} = await axios.get(`./get.php?url='www.google.com'`);
+    console.log(data);
+}
+
+test();
+
+//setup("2B4D1FWGWPICD");
 
 module.exports = function(listId){return setup(listId);}
 
