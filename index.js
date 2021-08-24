@@ -3,7 +3,7 @@ const axios = require("axios");
 
 var oldList;
 
-let whatever = 'https://whateverorigin.herokuapp.com/get?url=';
+let whatever = 'https://api.allorigins.win/get?url=';
 let base = "https://www.amazon.com"
 //TODO: Add support for other amazon stores; .uk etc.
 let baseUrl = "https://www.amazon.com/hz/wishlist/slv/items?filter=unpurchased&itemsLayout=GRID&sort=default&type=wishlist&lid=";
