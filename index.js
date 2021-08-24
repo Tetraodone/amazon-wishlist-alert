@@ -44,9 +44,23 @@ function constructItems(items){
 
 }
 
+async function failSafeFetch(url){
+    try{
+        //meta tag to avoid recieving cached version
+        const {data} = await axios.get(whatever + url + `&meta=${makeid(10)}`);
+        return data;
+    } catch (error) {
+        if(error.response.status == 502){
+            return failSafeFetch(url);
+        } else {
+            return null;
+        }
+    }
+}
+
 async function nextPage(url){
-    const {data} = await axios.get(whatever + encodeURIComponent(`${base}${url}`));
-    const $ = cheerio.load(data);
+    const data = await failSafeFetch(encodeURIComponent(`${base}${url}`));
+    const $ = cheerio.load(data.contents);
     const items = $('.wl-image-overlay');
     const more = $(".wl-see-more");
 
@@ -57,8 +71,8 @@ async function scrapeList(id) {
     console.log(`Scraping: ${id}`);
     try {
         fetching = true;
-        const {data} = await axios.get(whatever + encodeURIComponent(`${baseUrl}${id}&ajax=false`));
-
+        //const {data} = await axios.get(whatever + encodeURIComponent(`${baseUrl}${id}&ajax=false`));
+        const data = await failSafeFetch(encodeURIComponent(`${baseUrl}${id}&ajax=false`));
         const $ = cheerio.load(data.contents);
         var items = [];
         
@@ -99,8 +113,8 @@ async function scrapeList(id) {
 async function verifyItem(item){
     //Check that the product has not been removed from sale
     async function tryGet() {
-        const {data} = await axios.get(whatever + encodeURIComponent(`${base}${item.href}`));
-        const $ = cheerio.load(data);
+        const data = await failSafeFetch(encodeURIComponent(`${base}${item.href}`));
+        const $ = cheerio.load(data.contents);
         let title = $("#productTitle");
     }
 
@@ -156,10 +170,21 @@ async function setup(listId){
     oldList = await scrapeList(listId);
     if(oldList != null){
         console.log("Succsessfuly got list. Will check list every 120 seconds.");
-        setInterval(check, 120000, oldList);
+        setInterval(check, 12000, listId);
     } else {
         console.warn("Could not get any list, Ending...")
     }
+}
+
+function makeid(length) {
+    var result           = '';
+    var characters       = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+      result += characters.charAt(Math.floor(Math.random() * 
+ charactersLength));
+   }
+   return result;
 }
 
 setup('2B4D1FWGWPICD');
