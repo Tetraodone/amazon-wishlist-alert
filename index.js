@@ -155,7 +155,7 @@ async function check(list){
             for (let item of removedItems){
                 console.log('\x1b[1m%s\x1b[0m', `Someone has purchased ${item.name.slice(0, 21)}! Thank you!`);
             }
-            const purchasedEvent = new CustomEvent('productsPurchased', {items: removedItems});
+            const purchasedEvent = new CustomEvent('productsPurchased', {detail: removedItems});
             window.dispatchEvent(purchasedEvent);
         }
         oldList = newList;
