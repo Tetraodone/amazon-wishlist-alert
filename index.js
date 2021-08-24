@@ -1,9 +1,9 @@
-const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 const axios = require("axios");
 
 var oldList;
 
+let whatever = 'http://www.whateverorigin.org/get?url=';
 let base = "https://www.amazon.com"
 //TODO: Add support for other amazon stores; .uk etc.
 let baseUrl = "https://www.amazon.com/hz/wishlist/slv/items?filter=unpurchased&itemsLayout=GRID&sort=default&type=wishlist&lid=";
@@ -19,15 +19,6 @@ class Item {
         this.image = image;
         this.href = href;
     }
-}
-
-async function browse(url){
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    await page.goto(url);
-    const data = await page.content();
-    await browser.close();  
-    return data;
 }
 
 function constructItems(items){
@@ -54,7 +45,7 @@ function constructItems(items){
 }
 
 async function nextPage(url){
-    const data = await browse(`${base}${url}`);
+    const {data} = await axios.get(whatever + encodeURIComponent(`${base}${url}`));
     const $ = cheerio.load(data);
     const items = $('.wl-image-overlay');
     const more = $(".wl-see-more");
@@ -66,11 +57,9 @@ async function scrapeList(id) {
     console.log(`Scraping: ${id}`);
     try {
         fetching = true;
-        //const {data} = await axios.get(`${baseUrl}${id}&ajax=false`, {crossdomain: true , headers: {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0'}});
-        const data = await browse(`${baseUrl}${id}&ajax=false`);
-        
-        console.log(data);
-        const $ = cheerio.load(data);
+        const {data} = await axios.get(whatever + encodeURIComponent(`${baseUrl}${id}&ajax=false`));
+
+        const $ = cheerio.load(data.contents);
         var items = [];
         
         var itemData = $('.wl-image-overlay');
@@ -110,7 +99,7 @@ async function scrapeList(id) {
 async function verifyItem(item){
     //Check that the product has not been removed from sale
     async function tryGet() {
-        const data = await browse(`${base}${item.href}`);
+        const {data} = await axios.get(whatever + encodeURIComponent(`${base}${item.href}`));
         const $ = cheerio.load(data);
         let title = $("#productTitle");
     }
@@ -173,14 +162,7 @@ async function setup(listId){
     }
 }
 
-async function test(){
-    const {data} = await axios.get(`./get.php?url='www.google.com'`);
-    console.log(data);
-}
-
-test();
-
-//setup("2B4D1FWGWPICD");
+setup('2B4D1FWGWPICD');
 
 module.exports = function(listId){return setup(listId);}
 
