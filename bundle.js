@@ -2280,6 +2280,9 @@ async function scrapeList(id) {
         fetching = true;
         //const {data} = await axios.get(whatever + encodeURIComponent(`${baseUrl}${id}&ajax=false`));
         const data = await failSafeFetch(`${baseUrl}${id}&ajax=false`);
+        if(data == null){
+            return null;
+        }
         const $ = cheerio.load(data.contents);
         var items = [];
         
@@ -2292,7 +2295,7 @@ async function scrapeList(id) {
         var endOfList = (items.length < 12);
 
         while(!endOfList){
-            await timer(800);
+            await timer(2000);
             try {
                 const page = await nextPage(more[0].attribs.href);
                 console.log('\x1b[2m%s\x1b[0m', `Scraped ${page.items.length} more items`);
@@ -2377,7 +2380,7 @@ async function setup(listId){
     oldList = await scrapeList(listId);
     if(oldList != null){
         console.log("Succsessfuly got list. Will check list every 120 seconds.");
-        setInterval(check, 12000, listId);
+        setInterval(check, 120000, listId);
     } else {
         console.warn("Could not get any list, Ending...")
     }
@@ -2393,6 +2396,8 @@ function makeid(length) {
    }
    return result;
 }
+
+setup('I48D3CXHEUMH');
 
 module.exports = function(listId){return setup(listId);}
 
