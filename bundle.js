@@ -2397,8 +2397,6 @@ function makeid(length) {
    return result;
 }
 
-setup('I48D3CXHEUMH');
-
 module.exports = function(listId){return setup(listId);}
 
 
