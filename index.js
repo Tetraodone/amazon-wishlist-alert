@@ -47,7 +47,7 @@ function constructItems(items){
 async function failSafeFetch(url){
     try{
         //meta tag to avoid recieving cached version
-        const {data} = await axios.get(whatever + url + `&meta=${makeid(10)}`);
+        const {data} = await axios.get(whatever + encodeURIComponent(url + `&meta=${makeid(10)}`));
         return data;
     } catch (error) {
         if(error.response.status == 502){
@@ -59,7 +59,7 @@ async function failSafeFetch(url){
 }
 
 async function nextPage(url){
-    const data = await failSafeFetch(encodeURIComponent(`${base}${url}`));
+    const data = await failSafeFetch(`${base}${url}`);
     const $ = cheerio.load(data.contents);
     const items = $('.wl-image-overlay');
     const more = $(".wl-see-more");
@@ -72,7 +72,7 @@ async function scrapeList(id) {
     try {
         fetching = true;
         //const {data} = await axios.get(whatever + encodeURIComponent(`${baseUrl}${id}&ajax=false`));
-        const data = await failSafeFetch(encodeURIComponent(`${baseUrl}${id}&ajax=false`));
+        const data = await failSafeFetch(`${baseUrl}${id}&ajax=false`);
         const $ = cheerio.load(data.contents);
         var items = [];
         
@@ -113,7 +113,7 @@ async function scrapeList(id) {
 async function verifyItem(item){
     //Check that the product has not been removed from sale
     async function tryGet() {
-        const data = await failSafeFetch(encodeURIComponent(`${base}${item.href}`));
+        const data = await failSafeFetch(`${base}${item.href}`);
         const $ = cheerio.load(data.contents);
         let title = $("#productTitle");
     }
