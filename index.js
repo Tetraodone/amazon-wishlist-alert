@@ -187,8 +187,6 @@ function makeid(length) {
    return result;
 }
 
-setup('2B4D1FWGWPICD');
-
 module.exports = function(listId){return setup(listId);}
 
 
